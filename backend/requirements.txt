@@ -1,7 +1,0 @@
-fastapi>=0.110
-uvicorn>=0.27
-pydantic-settings>=2.0
-schemdraw>=0.18
-pillow>=10.0
-pytest>=8.0
-requests>=2.31
