@@ -1,4 +1,4 @@
-# Digital Circuits Backend — Part 1
+# Digital Circuits Backend
 
 This is the **backend/Boolean-synthesis layer only** for the Digital Circuits application. It accepts a Boolean function expressed as minterms and optional don't-care terms, exposes the complete Boolean analysis through JSON, and compiles **each** minimum Boolean expression into independent 2-input NAND and NOR **shared-expression DAGs**. The frontend remains responsible for presentation and maps the supplied normalized circuit graph to JointJS.
 
