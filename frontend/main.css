@@ -1,0 +1,187 @@
+html {
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #0d1117;
+    color: #e6edf3;
+    line-height: 1.6;
+}
+
+
+header {
+    text-align: center;
+    padding: 60px 20px 40px;
+}
+
+header h1 {
+    margin: 0 0 15px;
+    font-size: 2.8rem;
+}
+
+header p {
+    max-width: 700px;
+    margin: 0 auto;
+    color: #a8b3c2;
+    font-size: 1.1rem;
+}
+
+
+main {
+    width: min(1000px, 90%);
+    margin: 0 auto;
+}
+
+#upload-section {
+    text-align: center;
+    padding: 40px;
+    margin-bottom: 40px;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    background-color: #161b22;
+}
+
+#upload-section h2 {
+    margin-top: 0;
+}
+
+#upload-section p {
+    color: #a8b3c2;
+}
+
+
+#circuit-image {
+    display: block;
+    margin: 25px auto;
+    max-width: 100%;
+}
+
+
+
+#analyze-button {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    background-color: #238636;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#analyze-button:hover {
+    background-color: #2ea043;
+}
+
+#analyze-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+#status {
+    min-height: 24px;
+    margin-top: 20px;
+}
+
+
+#results-section {
+    margin-bottom: 60px;
+}
+
+#results-section > h2 {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+#results-section section {
+    margin-bottom: 20px;
+    padding: 25px;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    background-color: #161b22;
+}
+
+#results-section h3 {
+    margin-top: 0;
+    color: #58a6ff;
+}
+
+
+#boolean-result,
+#truth-table-result,
+#kmap-result,
+#gate-result,
+#verilog-result {
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #0d1117;
+    overflow-x: auto;
+}
+
+#verilog-result {
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
+
+footer {
+    padding: 30px;
+    text-align: center;
+    color: #6e7681;
+    border-top: 1px solid #30363d;
+}
+
+
+/* ---------- Tables ---------- */
+
+#truth-table-result table,
+#kmap-result table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+#truth-table-result th,
+#truth-table-result td,
+#kmap-result th,
+#kmap-result td {
+    padding: 12px;
+    border: 1px solid #30363d;
+}
+
+#truth-table-result th,
+#kmap-result th {
+    background-color: #21262d;
+    color: #58a6ff;
+    font-weight: bold;
+}
+
+#truth-table-result td,
+#kmap-result td {
+    background-color: #0d1117;
+}
+
+#truth-table-result tr:hover td,
+#kmap-result tr:hover td {
+    background-color: #161b22;
+}
+
+
+#image-preview-container {
+    display: none;
+    margin: 25px auto;
+    max-width: 700px;
+}
+
+#image-preview {
+    display: block;
+    max-width: 100%;
+    max-height: 400px;
+    margin: 0 auto;
+    border-radius: 10px;
+    border: 1px solid #30363d;
+    object-fit: contain;
+}

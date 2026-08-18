@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="author" content="Digital Circuits Project Team">
+
+    <meta name="description"
+          content="Analyze truth tables and logic circuit images and generate Boolean expressions, K-maps, and gate implementations.">
+
+    <title>Digital Circuit Analyzer</title>
+
+    <link rel="icon" href="circuit-board.png">
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Digital Circuit Analyzer</h1>
+
+        <p>
+            Analyze digital circuits by uploading an image
+            of a truth table or logic circuit.
+        </p>
+    </header>
+
+
+    <main>
+
+        <section id="upload-section">
+
+            <h2>Upload Your Circuit</h2>
+
+            <p>
+                Upload an image of a truth table or logic circuit
+                to begin the analysis.
+            </p>
+
+            <input
+            type="file"
+            id="circuit-image"
+            accept="image/*"
+        >
+
+        <div id="image-preview-container">
+            <img id="image-preview" src="circuit-board.png" alt="Uploaded circuit preview">
+        </div>
+
+        <button id="analyze-button">
+            Analyze Circuit
+        </button>
+
+            <p id="status"></p>
+
+        </section>
+
+
+        <section id="results-section" hidden>
+
+            <h2>Analysis Results</h2>
+
+
+            <section id="boolean-section">
+
+                <h3>Boolean Expression</h3>
+
+                <div id="boolean-result">
+                    —
+                </div>
+
+            </section>
+
+
+            <section id="truth-table-section">
+
+                <h3>Truth Table</h3>
+
+                <div id="truth-table-result">
+                    —
+                </div>
+
+            </section>
+
+
+            <section id="kmap-section">
+
+                <h3>Karnaugh Map</h3>
+
+                <div id="kmap-result">
+                    —
+                </div>
+
+            </section>
+
+
+            <section id="gate-section">
+
+                <h3>Logic Gate Implementation</h3>
+
+                <div id="gate-result">
+                    —
+                </div>
+
+            </section>
+
+
+            <section id="verilog-section">
+
+                <h3>Verilog RTL</h3>
+
+                <pre id="verilog-result">—</pre>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            Digital Circuit Analyzer — Digital Circuits Project
+        </p>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
