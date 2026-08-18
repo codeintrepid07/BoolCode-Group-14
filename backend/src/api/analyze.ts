@@ -7,7 +7,7 @@ import {
   solutionToExpression,
 } from "../boolean/quineMcCluskey";
 import { generateTruthTable } from "../boolean/truthTable";
-import type { AnalyzeRequest, Implicant, Kmap, PrimeChartEntry, TruthTable } from "../boolean/types";
+import type { AnalyzeRequest, Implicant, InputType, Kmap, PrimeChartEntry, TruthTable } from "../boolean/types";
 import { normalizeRequest } from "../boolean/validation";
 import { parseExpression } from "../synthesis/expressionParser";
 import { assertNormalizedGateDag, type CircuitVerification, type GateDag } from "../synthesis/gateDag";
@@ -31,9 +31,12 @@ export interface MinimumSolution {
 
 export interface AnalysisResponse {
   input: {
-    inputType: "minterms";
+    inputType: InputType;
     variables: string[];
-    minterms: number[];
+    /** Actual on-set supplied to the minterm-compatible Boolean engine. */
+    normalizedMinterms: number[];
+    minterms?: number[];
+    maxterms?: number[];
     dontCares: number[];
   };
   truthTable: TruthTable;
@@ -90,12 +93,21 @@ export function analyzeBooleanFunction(body: AnalyzeRequest | unknown): Analysis
   });
 
   return {
-    input: {
-      inputType: "minterms",
-      variables: input.variables,
-      minterms: input.minterms,
-      dontCares: input.dontCares,
-    },
+    input: input.inputType === "minterms"
+      ? {
+          inputType: "minterms",
+          variables: input.variables,
+          minterms: input.specifiedTerms,
+          normalizedMinterms: input.minterms,
+          dontCares: input.dontCares,
+        }
+      : {
+          inputType: "maxterms",
+          variables: input.variables,
+          maxterms: input.specifiedTerms,
+          normalizedMinterms: input.minterms,
+          dontCares: input.dontCares,
+        },
     truthTable: generateTruthTable(input),
     kmap: generateKmap(input),
     primeImplicants,

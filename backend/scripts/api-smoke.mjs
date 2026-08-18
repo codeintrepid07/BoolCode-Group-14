@@ -69,6 +69,23 @@ try {
   assert.equal(dontCareResult.minimumSolutions[0].nand.verification.passed, true);
   assert.equal(dontCareResult.minimumSolutions[0].nor.verification.passed, true);
 
+  const maxtermResponse = await fetch(`${baseUrl}/api/analyze`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      inputType: "maxterms",
+      variables: ["A", "B", "C"],
+      maxterms: [0, 1, 2, 4],
+      dontCares: [],
+    }),
+  });
+  assert.equal(maxtermResponse.status, 200);
+  const maxtermResult = await maxtermResponse.json();
+  assert.equal(maxtermResult.input.inputType, "maxterms");
+  assert.deepEqual(maxtermResult.input.maxterms, [0, 1, 2, 4]);
+  assert.deepEqual(maxtermResult.input.normalizedMinterms, [3, 5, 6, 7]);
+  assert.ok(maxtermResult.minimumSolutions.every((solution) => solution.nand.verification.passed && solution.nor.verification.passed));
+
   const invalid = await fetch(`${baseUrl}/api/analyze`, {
     method: "POST",
     headers: { "content-type": "application/json" },

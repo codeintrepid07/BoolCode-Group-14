@@ -64,6 +64,30 @@ test("don't-care terms expand legal grouping and preserve the resulting minimum 
   assert.equal(result.minimumSolutions[0].nor.verification.passed, true);
 });
 
+test("maxterm input normalizes to the equivalent on-set without changing the synthesized result", () => {
+  const maxtermResult = analyzeBooleanFunction({
+    inputType: "maxterms",
+    variables: ["A", "B", "C"],
+    maxterms: [0, 1, 2, 4],
+    dontCares: [],
+  });
+  const equivalentMintermResult = analyzeBooleanFunction({
+    inputType: "minterms",
+    variables: ["A", "B", "C"],
+    minterms: [3, 5, 6, 7],
+    dontCares: [],
+  });
+  assert.equal(maxtermResult.input.inputType, "maxterms");
+  assert.deepEqual(maxtermResult.input.maxterms, [0, 1, 2, 4]);
+  assert.deepEqual(maxtermResult.input.normalizedMinterms, [3, 5, 6, 7]);
+  assert.deepEqual(maxtermResult.minimumSolutions.map((item) => item.expression), ["BC + AC + AB"]);
+  assert.deepEqual(
+    maxtermResult.minimumSolutions.map((item) => item.expression),
+    equivalentMintermResult.minimumSolutions.map((item) => item.expression),
+  );
+  assert.ok(maxtermResult.minimumSolutions.every((item) => item.nand.verification.passed && item.nor.verification.passed));
+});
+
 test("NAND and NOR compilers emit normalized shared-node DAGs and preserve logic", () => {
   // A' is used in both product terms and must become one shared DAG node, not
   // two copied branches. NOR derives a shared inversion stage for the same use.
@@ -99,5 +123,9 @@ test("returns structured domain errors for malformed term input", () => {
   assert.throws(
     () => analyzeBooleanFunction({ variables: ["A", "B"], minterms: [4] }),
     (error: unknown) => error instanceof DomainError && error.code === "INVALID_MINTERM",
+  );
+  assert.throws(
+    () => analyzeBooleanFunction({ variables: ["A"], minterms: [0], maxterms: [1] } as never),
+    (error: unknown) => error instanceof DomainError && error.code === "CONFLICTING_TERM_INPUTS",
   );
 });

@@ -1,5 +1,5 @@
 import { DomainError } from "../errors";
-import type { AnalyzeRequest, NormalizedRequest } from "./types";
+import type { InputType, NormalizedRequest } from "./types";
 
 /**
  * The reference notebook has no explicit size ceiling, but its exhaustive cover
@@ -8,17 +8,32 @@ import type { AnalyzeRequest, NormalizedRequest } from "./types";
  */
 export const MAX_VARIABLES = 6;
 
+type RawRequest = {
+  inputType?: unknown;
+  variables?: unknown;
+  minterms?: unknown;
+  maxterms?: unknown;
+  dontCares?: unknown;
+};
+
 export function normalizeRequest(body: unknown): NormalizedRequest {
   if (body === null || typeof body !== "object" || Array.isArray(body)) {
     throw new DomainError("MALFORMED_REQUEST", "Request body must be a JSON object.");
   }
 
-  const request = body as Partial<AnalyzeRequest> & { inputType?: unknown };
-  if (request.inputType !== undefined && request.inputType !== "minterms") {
+  const request = body as RawRequest;
+  const inputType: InputType = request.inputType === undefined ? "minterms" : request.inputType as InputType;
+  if (inputType !== "minterms" && inputType !== "maxterms") {
     throw new DomainError(
       "UNSUPPORTED_INPUT_TYPE",
-      "Only inputType 'minterms' is supported because it is the input format provided by the reference notebook.",
+      "inputType must be either 'minterms' or 'maxterms'.",
       { details: { received: request.inputType } },
+    );
+  }
+  if (request.minterms !== undefined && request.maxterms !== undefined) {
+    throw new DomainError(
+      "CONFLICTING_TERM_INPUTS",
+      "Provide either minterms or maxterms, not both.",
     );
   }
 
@@ -46,8 +61,13 @@ export function normalizeRequest(body: unknown): NormalizedRequest {
     throw new DomainError("INVALID_VARIABLES", "Variable names must be unique.");
   }
 
-  if (!Array.isArray(request.minterms)) {
-    throw new DomainError("INVALID_MINTERM", "minterms must be an array of integer indices.");
+  const rawTerms = inputType === "minterms" ? request.minterms : request.maxterms;
+  const termLabel = inputType === "minterms" ? "minterms" : "maxterms";
+  const termErrorCode: "INVALID_MINTERM" | "INVALID_MAXTERM" = inputType === "minterms"
+    ? "INVALID_MINTERM"
+    : "INVALID_MAXTERM";
+  if (!Array.isArray(rawTerms)) {
+    throw new DomainError(termErrorCode, `${termLabel} must be an array of integer indices.`);
   }
   const rawDontCares = request.dontCares ?? [];
   if (!Array.isArray(rawDontCares)) {
@@ -55,7 +75,11 @@ export function normalizeRequest(body: unknown): NormalizedRequest {
   }
 
   const limit = 2 ** request.variables.length;
-  const normalizeTerms = (terms: unknown[], code: "INVALID_MINTERM" | "INVALID_DONT_CARE", label: string) => {
+  const normalizeTerms = (
+    terms: unknown[],
+    code: "INVALID_MINTERM" | "INVALID_MAXTERM" | "INVALID_DONT_CARE",
+    label: string,
+  ) => {
     if (terms.some((term) => !Number.isInteger(term) || (term as number) < 0 || (term as number) >= limit)) {
       throw new DomainError(code, `${label} must contain integer indices from 0 through ${limit - 1}.`, {
         details: { received: terms, limit },
@@ -64,20 +88,28 @@ export function normalizeRequest(body: unknown): NormalizedRequest {
     return [...new Set(terms as number[])].sort((a, b) => a - b);
   };
 
-  const minterms = normalizeTerms(request.minterms, "INVALID_MINTERM", "minterms");
+  const specifiedTerms = normalizeTerms(rawTerms, termErrorCode, termLabel);
   const dontCares = normalizeTerms(rawDontCares, "INVALID_DONT_CARE", "dontCares");
-  const overlaps = dontCares.filter((term) => minterms.includes(term));
+  const overlaps = dontCares.filter((term) => specifiedTerms.includes(term));
   if (overlaps.length > 0) {
     throw new DomainError(
       "OVERLAPPING_TERMS",
-      "A minterm cannot also be a don't-care term.",
+      `A ${inputType === "minterms" ? "minterm" : "maxterm"} cannot also be a don't-care term.`,
       { details: { overlappingTerms: overlaps } },
     );
   }
 
+  const minterms = inputType === "minterms"
+    ? specifiedTerms
+    : Array.from({ length: limit }, (_, term) => term).filter(
+        (term) => !specifiedTerms.includes(term) && !dontCares.includes(term),
+      );
+
   return {
+    inputType,
     variables: [...request.variables],
     minterms,
+    specifiedTerms,
     dontCares,
     variableCount: request.variables.length,
   };
